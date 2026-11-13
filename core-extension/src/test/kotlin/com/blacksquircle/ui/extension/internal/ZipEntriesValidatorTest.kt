@@ -39,6 +39,28 @@ class ZipEntriesValidatorTest {
     }
 
     @Test
+    fun `accepts directory entries as they appear in real archives`() {
+        val entries = listOf(
+            manifestEntry,
+            Entry("syntaxes/", 0, 0),
+            Entry("syntaxes/diff.tmLanguage.json", 4096, 1024),
+            Entry("LICENSES/", 0, 0),
+            Entry("LICENSES/vscode-MIT.txt", 1024, 512),
+            Entry("LICENSE", 512, 256),
+            Entry("README.md", 256, 128),
+        )
+
+        assertNull(ZipEntriesValidator.validate(entries))
+    }
+
+    @Test
+    fun `rejects unexpected root text file`() {
+        val entries = listOf(manifestEntry, Entry("NOTES.txt", 10, 10))
+
+        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
+    }
+
+    @Test
     fun `rejects package without manifest`() {
         val entries = listOf(Entry("themes/dark.json", 1024, 512))
 

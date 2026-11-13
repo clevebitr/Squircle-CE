@@ -61,4 +61,12 @@ class PathSanitizerTest {
         assertTrue(PathSanitizer.isInside("themes/a.json", "themes/"))
         assertFalse(PathSanitizer.isInside("themes_evil/a.json", "themes/"))
     }
+
+    @Test
+    fun `accepts the directory entry itself`() {
+        assertTrue(PathSanitizer.isInside("syntaxes", "syntaxes/"))
+        assertTrue(PathSanitizer.isInside("syntaxes/", "syntaxes/"))
+        assertFalse(PathSanitizer.isInside("", "syntaxes/"))
+        assertFalse(PathSanitizer.isInside("/", "syntaxes/"))
+    }
 }

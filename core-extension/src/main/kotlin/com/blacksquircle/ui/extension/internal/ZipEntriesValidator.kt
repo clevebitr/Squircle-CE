@@ -82,7 +82,10 @@ internal object ZipEntriesValidator {
                 continue
             }
             if (!isAllowedPath(normalized)) {
-                return ExtensionFailure.InvalidPackage("Unexpected file: $name")
+                if (!isAllowedRootFile(normalized)) {
+                    return ExtensionFailure.InvalidPackage("Unexpected file: $name")
+                }
+                continue
             }
             val fileExtension = normalized.substringAfterLast('.', "").lowercase()
             if (fileExtension in ExtensionConstants.FORBIDDEN_FILE_EXTENSIONS) {
@@ -98,5 +101,13 @@ internal object ZipEntriesValidator {
 
     private fun isAllowedPath(path: String): Boolean {
         return ExtensionConstants.ALLOWED_DIRECTORIES.any { PathSanitizer.isInside(path, it) }
+    }
+
+    /** Root-level licence/readme files, but never anything nested or executable. */
+    private fun isAllowedRootFile(path: String): Boolean {
+        if (path.contains('/')) {
+            return false
+        }
+        return path in ExtensionConstants.ALLOWED_ROOT_FILES
     }
 }

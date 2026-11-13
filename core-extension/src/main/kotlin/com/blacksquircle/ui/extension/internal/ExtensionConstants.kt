@@ -41,6 +41,22 @@ internal object ExtensionConstants {
         "icons/",
         "completions/",
         "snippets/",
+        "LICENSES/",
+    )
+
+    /**
+     * Documentation that third-party grammars and themes are usually shipped with.
+     * Licences are mandatory upstream (most TextMate assets are MIT), so rejecting
+     * them would make compliant packages uninstallable.
+     */
+    val ALLOWED_ROOT_FILES = setOf(
+        "README.md",
+        "CHANGELOG.md",
+        "NOTICE",
+        "NOTICE.txt",
+        "LICENSE",
+        "LICENSE.txt",
+        "LICENSE.md",
     )
 
     /** Extensions are data only, so anything executable is rejected outright. */
