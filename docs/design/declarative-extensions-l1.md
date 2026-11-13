@@ -150,7 +150,7 @@ acme.toml-support-1.2.0.zip
 **规则**
 
 - `schemaVersion` 当前只接受 `1`；未知值 → 拒绝安装（明确报错，不猜测）
-- `id` 必须匹配 `^[a-z0-9][a-z0-9._-]{2,63}$`，且 `publisher` 是 `id` 的第一段
+- `id` 必须匹配 `^[a-z0-9][a-z0-9._-]{2,63}$`，且 `publisher` 必须是 `id` 的前缀（`dev.squircle.diff` 可以由 `dev` 或 `dev.squircle` 发布）
 - `grammar` / `languageConfiguration` **必须**用 `extension://<id>/…` 前缀，解析时按扩展 id 定位
 - `themes[].id`、`fonts[].id` 是**扩展内局部 id**，全局 id 由宿主拼接：
   - 主题：`ext:<extensionId>/<themeId>`（对应 `SettingsManager.KEY_EDITOR_THEME` 的存量裸 id）

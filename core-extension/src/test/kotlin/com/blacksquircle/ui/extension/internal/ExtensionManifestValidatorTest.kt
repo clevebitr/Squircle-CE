@@ -29,9 +29,10 @@ class ExtensionManifestValidatorTest {
 
     @Test
     fun `accepts a manifest the app can run`() {
-        val failures = ExtensionManifestValidator.validate(manifest(), currentVersionCode = 10028)
+        val dottedPublisher = manifest(id = "dev.squircle.diff", publisher = "dev.squircle")
 
-        assertTrue(failures.isEmpty())
+        assertTrue(ExtensionManifestValidator.validate(manifest(), 10028).isEmpty())
+        assertTrue(ExtensionManifestValidator.validate(dottedPublisher, 10028).isEmpty())
     }
 
     @Test
@@ -52,7 +53,8 @@ class ExtensionManifestValidatorTest {
     @Test
     fun `rejects contributions that cannot be wired up`() {
         val cases = mapOf(
-            "publisher mismatch" to manifest().copy(publisher = "other"),
+            "publisher is not a prefix of the id" to manifest(publisher = "other"),
+            "publisher covers the whole id" to manifest(publisher = "acme.toml"),
             "empty contribution" to manifest(languages = emptyList(), themes = emptyList()),
             "grammar outside syntaxes" to manifest(
                 languages = listOf(language().copy(grammar = "extension://acme.toml/themes/toml.json"))
@@ -80,27 +82,29 @@ class ExtensionManifestValidatorTest {
     }
 
     private fun manifest(
-        languages: List<LanguageContribution> = listOf(language()),
-        themes: List<ThemeContribution> = listOf(theme()),
-        fonts: List<FontContribution> = emptyList(),
+        id: String = "acme.toml",
+        publisher: String = "acme",
+        languages: List<LanguageContribution>? = null,
+        themes: List<ThemeContribution>? = null,
+        fonts: List<FontContribution>? = null,
     ): ExtensionManifest {
         return ExtensionManifest(
             schemaVersion = 1,
-            id = "acme.toml",
-            publisher = "acme",
+            id = id,
+            publisher = publisher,
             displayName = "TOML Support",
             description = "TOML syntax highlighting",
             version = "1.0.0",
             minVersionCode = 10028,
             contributes = ExtensionContributes(
-                languages = languages,
-                themes = themes,
-                fonts = fonts,
+                languages = languages ?: listOf(language(id)),
+                themes = themes ?: listOf(theme(id)),
+                fonts = fonts.orEmpty(),
             ),
         )
     }
 
-    private fun language(): LanguageContribution {
+    private fun language(id: String = "acme.toml"): LanguageContribution {
         return LanguageContribution(
             scopeName = "source.toml",
             name = "toml",
@@ -108,24 +112,24 @@ class ExtensionManifestValidatorTest {
             extensions = listOf(".toml"),
             filenames = listOf("Cargo.lock"),
             mimeTypes = listOf("application/toml"),
-            grammar = "extension://acme.toml/syntaxes/toml.tmLanguage.json",
-            languageConfiguration = "extension://acme.toml/language-configuration/toml.json",
+            grammar = "extension://$id/syntaxes/toml.tmLanguage.json",
+            languageConfiguration = "extension://$id/language-configuration/toml.json",
         )
     }
 
-    private fun theme(): ThemeContribution {
+    private fun theme(id: String = "acme.toml"): ThemeContribution {
         return ThemeContribution(
             id = "toml-dark",
-            path = "extension://acme.toml/themes/dark.json",
+            path = "extension://$id/themes/dark.json",
             uiTheme = "dark",
             displayName = "TOML Dark",
         )
     }
 
-    private fun font(): FontContribution {
+    private fun font(id: String = "acme.toml"): FontContribution {
         return FontContribution(
             id = "acme-mono",
-            path = "extension://acme.toml/fonts/mono.ttf",
+            path = "extension://$id/fonts/mono.ttf",
             displayName = "Acme Mono",
         )
     }

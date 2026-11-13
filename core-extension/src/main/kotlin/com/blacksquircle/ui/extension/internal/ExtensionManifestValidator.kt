@@ -48,9 +48,9 @@ internal object ExtensionManifestValidator {
         if (!EXTENSION_ID.matches(manifest.id)) {
             failures += ExtensionFailure.InvalidPackage("Invalid extension id: '${manifest.id}'")
         }
-        if (manifest.publisher != manifest.id.substringBefore('.')) {
+        if (!hasPublisherPrefix(manifest)) {
             failures += ExtensionFailure.InvalidPackage(
-                "Publisher '${manifest.publisher}' must be the first segment of the id"
+                "Publisher '${manifest.publisher}' must be a prefix of the id"
             )
         }
         if (manifest.displayName.isBlank() || manifest.displayName.length > MAX_DISPLAY_NAME_LENGTH) {
@@ -188,6 +188,14 @@ internal object ExtensionManifestValidator {
                 failures += ExtensionFailure.InvalidPackage("Unsupported font format: '${font.path}'")
             }
         }
+    }
+
+    /** `<publisher>.<name>`, where the publisher itself may contain dots. */
+    private fun hasPublisherPrefix(manifest: ExtensionManifest): Boolean {
+        if (manifest.publisher.isEmpty()) {
+            return false
+        }
+        return manifest.id.startsWith(manifest.publisher + '.')
     }
 
     private fun isContributionPath(value: String, extensionId: String, directory: String): Boolean {
