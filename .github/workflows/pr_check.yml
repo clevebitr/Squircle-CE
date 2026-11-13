@@ -46,6 +46,13 @@ jobs:
       - name: Assemble debug build
         run: ./gradlew :app:assembleFossDebug
 
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FOSS App (Debug)
+          path: ./app/build/outputs/apk/foss/debug/app-foss-debug.apk
+          if-no-files-found: error
+
   unit_tests:
     runs-on: ubuntu-latest
     steps:
