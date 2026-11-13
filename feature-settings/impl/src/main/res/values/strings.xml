@@ -21,6 +21,8 @@
 
     <string name="settings_header_application_title">Application</string>
     <string name="settings_header_application_subtitle">Configure global application settings</string>
+    <string name="settings_header_extensions_title">Extensions</string>
+    <string name="settings_header_extensions_subtitle">Install, enable or remove extensions</string>
     <string name="settings_header_editor_title">Editor</string>
     <string name="settings_header_editor_subtitle">Configure the editor</string>
     <string name="settings_header_codestyle_title">Code Style</string>

@@ -20,6 +20,8 @@ import android.app.Application
 import com.blacksquircle.ui.core.internal.CoreApi
 import com.blacksquircle.ui.core.internal.CoreApiProvider
 import com.blacksquircle.ui.core.logger.AndroidTree
+import com.blacksquircle.ui.extension.ExtensionsApi
+import com.blacksquircle.ui.extension.ExtensionsApiProvider
 import com.blacksquircle.ui.feature.editor.api.internal.EditorApi
 import com.blacksquircle.ui.feature.editor.api.internal.EditorApiProvider
 import com.blacksquircle.ui.feature.explorer.api.internal.ExplorerApi
@@ -43,6 +45,7 @@ import timber.log.Timber
 
 internal class SquircleApp : Application(),
     CoreApiProvider,
+    ExtensionsApiProvider,
     NavigationApiProvider,
     EditorApiProvider,
     ExplorerApiProvider,
@@ -65,6 +68,8 @@ internal class SquircleApp : Application(),
     // region DAGGER
 
     override fun provideCoreApi(): CoreApi = appComponent
+
+    override fun provideExtensionsApi(): ExtensionsApi = appComponent
 
     override fun provideNavigationApi(): NavigationApi = appComponent
 

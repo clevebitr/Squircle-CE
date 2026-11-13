@@ -18,6 +18,7 @@ package com.blacksquircle.ui.core.database.utils
 
 object Tables {
     const val DOCUMENTS = "tbl_documents"
+    const val EXTENSIONS = "tbl_extensions"
     const val FONTS = "tbl_fonts"
     const val SERVERS = "tbl_servers"
     const val WORKSPACES = "tbl_workspaces"

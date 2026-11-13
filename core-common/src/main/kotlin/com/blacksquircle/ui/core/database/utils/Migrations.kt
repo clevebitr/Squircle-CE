@@ -71,4 +71,16 @@ object Migrations {
             db.execSQL("UPDATE `${Tables.WORKSPACES}` SET `type` = 'custom'")
         }
     }
+
+    val MIGRATION_5_6 = object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "CREATE TABLE IF NOT EXISTS `${Tables.EXTENSIONS}` (`id` TEXT NOT NULL, " +
+                    "`version` TEXT NOT NULL, `enabled` INTEGER NOT NULL, " +
+                    "`install_type` TEXT NOT NULL, `source_url` TEXT, " +
+                    "`installed_at` INTEGER NOT NULL, `manifest` TEXT NOT NULL, " +
+                    "PRIMARY KEY(`id`))"
+            )
+        }
+    }
 }

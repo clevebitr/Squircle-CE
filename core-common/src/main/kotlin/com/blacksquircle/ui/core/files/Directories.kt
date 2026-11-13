@@ -45,6 +45,15 @@ object Directories {
 
     // region FILES
 
+    /** /data/data/com.blacksquircle.ui/files/extensions */
+    fun extensionsDir(context: Context): File {
+        val directory = File(context.filesDir, "extensions")
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+        return directory
+    }
+
     /** /data/data/com.blacksquircle.ui/files/fonts */
     fun fontsDir(context: Context): File {
         val directory = File(context.filesDir, "fonts")

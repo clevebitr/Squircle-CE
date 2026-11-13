@@ -50,6 +50,7 @@ android {
 dependencies {
 
     implementation(project(":core-common"))
+    implementation(project(":core-extension"))
     implementation(project(":core-navigation:api"))
     implementation(project(":core-navigation:impl"))
     implementation(project(":core-redux"))
@@ -59,6 +60,8 @@ dependencies {
     implementation(project(":feature-editor:impl"))
     implementation(project(":feature-explorer:api"))
     implementation(project(":feature-explorer:impl"))
+    implementation(project(":feature-extensions:api"))
+    implementation(project(":feature-extensions:impl"))
     implementation(project(":feature-fonts:api"))
     implementation(project(":feature-fonts:impl"))
     implementation(project(":feature-git:api"))

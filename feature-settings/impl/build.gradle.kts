@@ -38,6 +38,7 @@ dependencies {
     implementation(project(":core-ui"))
 
     implementation(project(":feature-fonts:api"))
+    implementation(project(":feature-extensions:api"))
     implementation(project(":feature-servers:api"))
     implementation(project(":feature-settings:api"))
     implementation(project(":feature-shortcuts:api"))

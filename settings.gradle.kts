@@ -39,6 +39,7 @@ include(":app", ":benchmark")
 
 include(
     ":core-common",
+    ":core-extension",
     ":core-navigation:api",
     ":core-navigation:impl",
     ":core-redux",
@@ -48,6 +49,8 @@ include(
     ":feature-editor:impl",
     ":feature-explorer:api",
     ":feature-explorer:impl",
+    ":feature-extensions:api",
+    ":feature-extensions:impl",
     ":feature-fonts:api",
     ":feature-fonts:impl",
     ":feature-git:api",

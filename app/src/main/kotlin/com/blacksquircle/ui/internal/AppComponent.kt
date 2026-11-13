@@ -22,10 +22,13 @@ import com.blacksquircle.ui.application.MainViewModel
 import com.blacksquircle.ui.application.update.UpdateViewModel
 import com.blacksquircle.ui.core.internal.CoreApi
 import com.blacksquircle.ui.core.internal.CoreModule
+import com.blacksquircle.ui.extension.ExtensionsApi
+import com.blacksquircle.ui.extension.internal.CoreExtensionModule
 import com.blacksquircle.ui.feature.editor.api.internal.EditorApi
 import com.blacksquircle.ui.feature.editor.internal.api.EditorApiModule
 import com.blacksquircle.ui.feature.explorer.api.internal.ExplorerApi
 import com.blacksquircle.ui.feature.explorer.internal.api.ExplorerApiModule
+import com.blacksquircle.ui.feature.extensions.internal.api.ExtensionsApiModule
 import com.blacksquircle.ui.feature.fonts.api.internal.FontsApi
 import com.blacksquircle.ui.feature.fonts.internal.api.FontsApiModule
 import com.blacksquircle.ui.feature.git.api.internal.GitApi
@@ -49,8 +52,10 @@ import javax.inject.Singleton
     modules = [
         AppModule::class,
         CoreModule::class,
+        CoreExtensionModule::class,
         EditorApiModule::class,
         ExplorerApiModule::class,
+        ExtensionsApiModule::class,
         FontsApiModule::class,
         GitApiModule::class,
         ServersApiModule::class,
@@ -62,6 +67,7 @@ import javax.inject.Singleton
 )
 internal interface AppComponent :
     CoreApi,
+    ExtensionsApi,
     NavigationApi,
     EditorApi,
     ExplorerApi,

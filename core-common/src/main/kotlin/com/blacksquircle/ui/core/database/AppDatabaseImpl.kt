@@ -19,10 +19,12 @@ package com.blacksquircle.ui.core.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.blacksquircle.ui.core.database.dao.document.DocumentDao
+import com.blacksquircle.ui.core.database.dao.extension.ExtensionDao
 import com.blacksquircle.ui.core.database.dao.font.FontDao
 import com.blacksquircle.ui.core.database.dao.server.ServerDao
 import com.blacksquircle.ui.core.database.dao.workspace.WorkspaceDao
 import com.blacksquircle.ui.core.database.entity.document.DocumentEntity
+import com.blacksquircle.ui.core.database.entity.extension.ExtensionEntity
 import com.blacksquircle.ui.core.database.entity.font.FontEntity
 import com.blacksquircle.ui.core.database.entity.server.ServerEntity
 import com.blacksquircle.ui.core.database.entity.workspace.WorkspaceEntity
@@ -30,11 +32,12 @@ import com.blacksquircle.ui.core.database.entity.workspace.WorkspaceEntity
 @Database(
     entities = [
         DocumentEntity::class,
+        ExtensionEntity::class,
         FontEntity::class,
         ServerEntity::class,
         WorkspaceEntity::class,
     ],
-    version = 5,
+    version = 6,
 )
 abstract class AppDatabaseImpl : RoomDatabase(), AppDatabase {
 
@@ -43,6 +46,7 @@ abstract class AppDatabaseImpl : RoomDatabase(), AppDatabase {
     }
 
     abstract override fun documentDao(): DocumentDao
+    abstract override fun extensionDao(): ExtensionDao
     abstract override fun fontDao(): FontDao
     abstract override fun serverDao(): ServerDao
     abstract override fun workspaceDao(): WorkspaceDao

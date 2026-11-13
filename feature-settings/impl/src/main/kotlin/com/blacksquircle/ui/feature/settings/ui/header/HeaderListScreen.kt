@@ -32,6 +32,7 @@ import com.blacksquircle.ui.ds.PreviewBackground
 import com.blacksquircle.ui.ds.preference.PreferenceHeader
 import com.blacksquircle.ui.ds.scaffold.ScaffoldSuite
 import com.blacksquircle.ui.ds.toolbar.Toolbar
+import com.blacksquircle.ui.feature.extensions.api.navigation.ExtensionsRoute
 import com.blacksquircle.ui.feature.servers.api.navigation.ServerListRoute
 import com.blacksquircle.ui.feature.settings.R
 import com.blacksquircle.ui.feature.settings.api.navigation.AboutHeaderRoute
@@ -85,6 +86,11 @@ private fun HeaderListScreen(
                 title = stringResource(R.string.settings_header_application_title),
                 subtitle = stringResource(R.string.settings_header_application_subtitle),
                 onClick = { onHeaderClicked(ApplicationHeaderRoute) },
+            )
+            PreferenceHeader(
+                title = stringResource(R.string.settings_header_extensions_title),
+                subtitle = stringResource(R.string.settings_header_extensions_subtitle),
+                onClick = { onHeaderClicked(ExtensionsRoute) },
             )
             PreferenceHeader(
                 title = stringResource(R.string.settings_header_editor_title),
