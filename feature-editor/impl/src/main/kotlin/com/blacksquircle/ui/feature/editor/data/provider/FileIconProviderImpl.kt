@@ -17,15 +17,17 @@
 package com.blacksquircle.ui.feature.editor.data.provider
 
 import com.blacksquircle.ui.feature.editor.api.provider.FileIconProvider
-import com.blacksquircle.ui.feature.editor.data.model.FileAssociation
+import com.blacksquircle.ui.feature.editor.data.model.LanguageRegistry
 import com.blacksquircle.ui.feature.editor.data.model.LanguageScope
 import com.blacksquircle.ui.filesystem.base.model.FileModel
 import com.blacksquircle.ui.ds.R as UiR
 
-internal class FileIconProviderImpl : FileIconProvider {
+internal class FileIconProviderImpl(
+    private val languageRegistry: LanguageRegistry,
+) : FileIconProvider {
 
     override fun fileIcon(fileModel: FileModel): Int {
-        val language = FileAssociation.guessLanguage(fileModel.extension)
+        val language = languageRegistry.guessLanguage(fileModel)
         return when (language) {
             LanguageScope.BAT -> UiR.drawable.ic_file_document
             LanguageScope.C -> UiR.drawable.ic_language_c

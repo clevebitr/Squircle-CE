@@ -16,9 +16,11 @@
 
 package com.blacksquircle.ui.feature.editor.internal.api
 
+import com.blacksquircle.ui.extension.ExtensionRegistry
 import com.blacksquircle.ui.feature.editor.api.interactor.EditorInteractor
 import com.blacksquircle.ui.feature.editor.api.provider.FileIconProvider
 import com.blacksquircle.ui.feature.editor.data.interactor.EditorInteractorImpl
+import com.blacksquircle.ui.feature.editor.data.model.LanguageRegistry
 import com.blacksquircle.ui.feature.editor.data.provider.FileIconProviderImpl
 import com.blacksquircle.ui.feature.editor.ui.EditorEntryProvider
 import com.blacksquircle.ui.navigation.api.provider.EntryProvider
@@ -38,8 +40,8 @@ object EditorApiModule {
 
     @Provides
     @Singleton
-    fun provideFileIconProvider(): FileIconProvider {
-        return FileIconProviderImpl()
+    fun provideFileIconProvider(extensionRegistry: ExtensionRegistry): FileIconProvider {
+        return FileIconProviderImpl(LanguageRegistry(extensionRegistry))
     }
 
     @IntoSet
