@@ -21,8 +21,7 @@ import com.blacksquircle.ui.feature.extensions.ui.extensions.store.ExtensionsSta
 import com.blacksquircle.ui.redux.mapper.ViewStateMapper
 import javax.inject.Inject
 
-internal class ExtensionsViewStateMapper @Inject constructor() :
-    ViewStateMapper<ExtensionsState, ExtensionsViewState> {
+internal class ExtensionsViewStateMapper @Inject constructor() : ViewStateMapper<ExtensionsState, ExtensionsViewState> {
 
     override fun map(state: ExtensionsState): ExtensionsViewState {
         return ExtensionsViewState(

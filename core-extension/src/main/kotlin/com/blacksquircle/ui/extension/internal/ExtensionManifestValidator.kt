@@ -197,6 +197,6 @@ internal object ExtensionManifestValidator {
         }
         val relativePath = value.removePrefix(prefix)
         return PathSanitizer.isSafeRelativePath(relativePath) &&
-                PathSanitizer.isInside(relativePath, directory)
+            PathSanitizer.isInside(relativePath, directory)
     }
 }
