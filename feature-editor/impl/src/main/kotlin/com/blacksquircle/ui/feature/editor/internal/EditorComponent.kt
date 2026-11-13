@@ -19,6 +19,8 @@ package com.blacksquircle.ui.feature.editor.internal
 import android.content.Context
 import com.blacksquircle.ui.core.internal.CoreApi
 import com.blacksquircle.ui.core.internal.provideCoreApi
+import com.blacksquircle.ui.extension.ExtensionsApi
+import com.blacksquircle.ui.extension.provideExtensionsApi
 import com.blacksquircle.ui.feature.editor.api.internal.EditorApi
 import com.blacksquircle.ui.feature.editor.api.internal.provideEditorApi
 import com.blacksquircle.ui.feature.editor.ui.closefile.CloseFileViewModel
@@ -48,6 +50,7 @@ import dagger.Component
     ],
     dependencies = [
         CoreApi::class,
+        ExtensionsApi::class,
         NavigationApi::class,
         EditorApi::class,
         ExplorerApi::class,
@@ -70,6 +73,7 @@ internal interface EditorComponent {
     interface Factory {
         fun create(
             coreApi: CoreApi,
+            extensionsApi: ExtensionsApi,
             navigationApi: NavigationApi,
             editorApi: EditorApi,
             explorerApi: ExplorerApi,
@@ -87,6 +91,7 @@ internal interface EditorComponent {
         fun buildOrGet(context: Context): EditorComponent {
             return component ?: DaggerEditorComponent.factory().create(
                 coreApi = context.provideCoreApi(),
+                extensionsApi = context.provideExtensionsApi(),
                 navigationApi = context.provideNavigationApi(),
                 editorApi = context.provideEditorApi(),
                 explorerApi = context.provideExplorerApi(),

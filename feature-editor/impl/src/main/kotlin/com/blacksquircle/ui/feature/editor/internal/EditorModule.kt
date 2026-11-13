@@ -22,8 +22,10 @@ import com.blacksquircle.ui.core.database.dao.document.DocumentDao
 import com.blacksquircle.ui.core.files.Directories
 import com.blacksquircle.ui.core.provider.coroutine.DispatcherProvider
 import com.blacksquircle.ui.core.settings.SettingsManager
+import com.blacksquircle.ui.extension.ExtensionRegistry
 import com.blacksquircle.ui.feature.editor.data.interactor.LanguageInteractorImpl
 import com.blacksquircle.ui.feature.editor.data.manager.CacheManager
+import com.blacksquircle.ui.feature.editor.data.model.LanguageRegistry
 import com.blacksquircle.ui.feature.editor.data.repository.DocumentRepositoryImpl
 import com.blacksquircle.ui.feature.editor.domain.interactor.LanguageInteractor
 import com.blacksquircle.ui.feature.editor.domain.repository.DocumentRepository
@@ -40,13 +42,21 @@ internal object EditorModule {
     fun provideLanguageInteractor(
         dispatcherProvider: DispatcherProvider,
         jsonParser: Json,
+        extensionRegistry: ExtensionRegistry,
         context: Context,
     ): LanguageInteractor {
         return LanguageInteractorImpl(
             dispatcherProvider = dispatcherProvider,
             jsonParser = jsonParser,
+            extensionRegistry = extensionRegistry,
             context = context,
         )
+    }
+
+    @Provides
+    @EditorScope
+    fun provideLanguageRegistry(extensionRegistry: ExtensionRegistry): LanguageRegistry {
+        return LanguageRegistry(extensionRegistry)
     }
 
     @Provides
@@ -57,6 +67,7 @@ internal object EditorModule {
         cacheManager: CacheManager,
         documentDao: DocumentDao,
         filesystemFactory: FilesystemFactory,
+        languageRegistry: LanguageRegistry,
         context: Context,
     ): DocumentRepository {
         return DocumentRepositoryImpl(
@@ -65,6 +76,7 @@ internal object EditorModule {
             cacheManager = cacheManager,
             documentDao = documentDao,
             filesystemFactory = filesystemFactory,
+            languageRegistry = languageRegistry,
             context = context,
         )
     }

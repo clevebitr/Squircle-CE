@@ -31,7 +31,7 @@ import com.blacksquircle.ui.feature.editor.data.extensions.openUriAsDocument
 import com.blacksquircle.ui.feature.editor.data.extensions.openUriAsFile
 import com.blacksquircle.ui.feature.editor.data.manager.CacheManager
 import com.blacksquircle.ui.feature.editor.data.mapper.DocumentMapper
-import com.blacksquircle.ui.feature.editor.data.model.FileAssociation
+import com.blacksquircle.ui.feature.editor.data.model.LanguageRegistry
 import com.blacksquircle.ui.feature.editor.data.model.LanguageScope
 import com.blacksquircle.ui.feature.editor.domain.model.DocumentModel
 import com.blacksquircle.ui.feature.editor.domain.repository.DocumentRepository
@@ -54,6 +54,7 @@ internal class DocumentRepositoryImpl(
     private val cacheManager: CacheManager,
     private val documentDao: DocumentDao,
     private val filesystemFactory: FilesystemFactory,
+    private val languageRegistry: LanguageRegistry,
     private val context: Context,
 ) : DocumentRepository {
 
@@ -74,7 +75,7 @@ internal class DocumentRepositoryImpl(
                     fileUri = fileModel.fileUri,
                     filesystemUuid = fileModel.filesystemUuid,
                     displayName = fileModel.name,
-                    language = FileAssociation.guessLanguage(fileModel.extension)
+                    language = languageRegistry.guessLanguage(fileModel)
                         ?: LanguageScope.TEXT,
                     modified = false,
                     position = position,

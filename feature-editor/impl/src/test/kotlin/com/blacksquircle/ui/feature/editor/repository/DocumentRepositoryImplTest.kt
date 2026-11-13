@@ -21,9 +21,12 @@ import com.blacksquircle.ui.core.database.dao.document.DocumentDao
 import com.blacksquircle.ui.core.extensions.PermissionException
 import com.blacksquircle.ui.core.extensions.isStorageAccessGranted
 import com.blacksquircle.ui.core.settings.SettingsManager
+import com.blacksquircle.ui.extension.ExtensionRegistry
+import com.blacksquircle.ui.extension.model.ExtensionContributions
 import com.blacksquircle.ui.feature.editor.createDocument
 import com.blacksquircle.ui.feature.editor.createDocumentEntity
 import com.blacksquircle.ui.feature.editor.data.manager.CacheManager
+import com.blacksquircle.ui.feature.editor.data.model.LanguageRegistry
 import com.blacksquircle.ui.feature.editor.data.model.LanguageScope
 import com.blacksquircle.ui.feature.editor.data.repository.DocumentRepositoryImpl
 import com.blacksquircle.ui.feature.explorer.api.factory.FilesystemFactory
@@ -50,6 +53,9 @@ class DocumentRepositoryImplTest {
     private val cacheManager = mockk<CacheManager>(relaxed = true)
     private val documentDao = mockk<DocumentDao>(relaxed = true)
     private val filesystemFactory = mockk<FilesystemFactory>(relaxed = true)
+    private val extensionRegistry = mockk<ExtensionRegistry> {
+        every { contributions() } returns ExtensionContributions()
+    }
     private val context = mockk<Context>(relaxed = true)
 
     private val filesystem = mockk<Filesystem>(relaxed = true)
@@ -60,6 +66,7 @@ class DocumentRepositoryImplTest {
         cacheManager = cacheManager,
         documentDao = documentDao,
         filesystemFactory = filesystemFactory,
+        languageRegistry = LanguageRegistry(extensionRegistry),
         context = context
     )
 

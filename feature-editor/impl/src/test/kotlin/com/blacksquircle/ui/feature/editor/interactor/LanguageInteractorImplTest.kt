@@ -18,10 +18,13 @@ package com.blacksquircle.ui.feature.editor.interactor
 
 import android.content.Context
 import android.content.res.AssetManager
+import com.blacksquircle.ui.extension.ExtensionRegistry
+import com.blacksquircle.ui.extension.model.ExtensionContributions
 import com.blacksquircle.ui.feature.editor.data.interactor.LanguageInteractorImpl
 import com.blacksquircle.ui.feature.editor.domain.interactor.LanguageInteractor
 import com.blacksquircle.ui.test.provider.TestDispatcherProvider
 import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -41,6 +44,10 @@ class LanguageInteractorImplTest {
     private val dispatcherProvider = TestDispatcherProvider()
     private val jsonParser = mockk<Json>(relaxed = true)
     private val context = mockk<Context>(relaxed = true)
+    private val extensionRegistry = mockk<ExtensionRegistry> {
+        every { contributions() } returns ExtensionContributions()
+        coEvery { ensureLoaded() } returns ExtensionContributions()
+    }
 
     private lateinit var languageInteractor: LanguageInteractor
 
@@ -59,6 +66,7 @@ class LanguageInteractorImplTest {
         languageInteractor = LanguageInteractorImpl(
             dispatcherProvider = dispatcherProvider,
             jsonParser = jsonParser,
+            extensionRegistry = extensionRegistry,
             context = context
         )
     }
