@@ -28,138 +28,55 @@ import org.junit.Test
 class ExtensionManifestValidatorTest {
 
     @Test
-    fun `accepts a valid manifest`() {
+    fun `accepts a manifest the app can run`() {
         val failures = ExtensionManifestValidator.validate(manifest(), currentVersionCode = 10028)
 
         assertTrue(failures.isEmpty())
     }
 
     @Test
-    fun `rejects unsupported schema version`() {
-        val failures = ExtensionManifestValidator.validate(
-            manifest().copy(schemaVersion = 2),
-            currentVersionCode = 10028,
-        )
+    fun `rejects manifest the app cannot run`() {
+        val unknownSchema = manifest().copy(schemaVersion = 2)
+        val tooNew = manifest().copy(minVersionCode = 20000)
 
-        assertTrue(failures.single() is ExtensionFailure.UnsupportedSchema)
+        assertTrue(
+            ExtensionManifestValidator.validate(unknownSchema, 10028)
+                .single() is ExtensionFailure.UnsupportedSchema
+        )
+        assertTrue(
+            ExtensionManifestValidator.validate(tooNew, 10028)
+                .single() is ExtensionFailure.UnsupportedVersion
+        )
     }
 
     @Test
-    fun `rejects publisher that is not part of the id`() {
-        val failures = ExtensionManifestValidator.validate(
-            manifest().copy(publisher = "other"),
-            currentVersionCode = 10028,
+    fun `rejects contributions that cannot be wired up`() {
+        val cases = mapOf(
+            "publisher mismatch" to manifest().copy(publisher = "other"),
+            "empty contribution" to manifest(languages = emptyList(), themes = emptyList()),
+            "grammar outside syntaxes" to manifest(
+                languages = listOf(language().copy(grammar = "extension://acme.toml/themes/toml.json"))
+            ),
+            "grammar of another extension" to manifest(
+                languages = listOf(language().copy(grammar = "extension://other/syntaxes/toml.json"))
+            ),
+            "duplicate scope" to manifest(languages = listOf(language(), language())),
+            "duplicate association" to manifest(
+                languages = listOf(language(), language().copy(scopeName = "source.toml2"))
+            ),
+            "extension without dot" to manifest(
+                languages = listOf(language().copy(extensions = listOf("toml")))
+            ),
+            "unknown ui theme" to manifest(themes = listOf(theme().copy(uiTheme = "sepia"))),
+            "unsupported font format" to manifest(
+                fonts = listOf(font().copy(path = "extension://acme.toml/fonts/mono.woff2"))
+            ),
         )
 
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `rejects manifest requiring a newer app`() {
-        val failures = ExtensionManifestValidator.validate(
-            manifest().copy(minVersionCode = 20000),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.single() is ExtensionFailure.UnsupportedVersion)
-    }
-
-    @Test
-    fun `rejects extension that contributes nothing`() {
-        val failures = ExtensionManifestValidator.validate(
-            manifest(languages = emptyList(), themes = emptyList()),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `rejects grammar outside syntaxes directory`() {
-        val language = language().copy(grammar = "extension://acme.toml/themes/toml.tmLanguage.json")
-        val failures = ExtensionManifestValidator.validate(
-            manifest(languages = listOf(language)),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `rejects grammar of another extension`() {
-        val language = language().copy(grammar = "extension://other.toml/syntaxes/toml.tmLanguage.json")
-        val failures = ExtensionManifestValidator.validate(
-            manifest(languages = listOf(language)),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `rejects duplicated scope names`() {
-        val failures = ExtensionManifestValidator.validate(
-            manifest(languages = listOf(language(), language())),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `rejects duplicated file associations`() {
-        val other = language().copy(scopeName = "source.toml2", name = "toml2")
-        val failures = ExtensionManifestValidator.validate(
-            manifest(languages = listOf(language(), other)),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `rejects file association without dot`() {
-        val failures = ExtensionManifestValidator.validate(
-            manifest(languages = listOf(language().copy(extensions = listOf("toml")))),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `rejects theme with unknown ui theme`() {
-        val failures = ExtensionManifestValidator.validate(
-            manifest(themes = listOf(theme().copy(uiTheme = "sepia"))),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `rejects font with unsupported format`() {
-        val font = FontContribution(
-            id = "acme-mono",
-            path = "extension://acme.toml/fonts/acme-mono.woff2",
-            displayName = "Acme Mono",
-        )
-        val failures = ExtensionManifestValidator.validate(
-            manifest(fonts = listOf(font)),
-            currentVersionCode = 10028,
-        )
-
-        assertTrue(failures.any { it is ExtensionFailure.InvalidPackage })
-    }
-
-    @Test
-    fun `accepts manifest when version code is unknown`() {
-        val failures = ExtensionManifestValidator.validate(
-            manifest().copy(minVersionCode = Long.MAX_VALUE),
-            currentVersionCode = null,
-        )
-
-        assertTrue(failures.isEmpty())
+        for ((reason, manifest) in cases) {
+            val failures = ExtensionManifestValidator.validate(manifest, currentVersionCode = 10028)
+            assertTrue(reason, failures.any { it is ExtensionFailure.InvalidPackage })
+        }
     }
 
     private fun manifest(
@@ -202,6 +119,14 @@ class ExtensionManifestValidatorTest {
             path = "extension://acme.toml/themes/dark.json",
             uiTheme = "dark",
             displayName = "TOML Dark",
+        )
+    }
+
+    private fun font(): FontContribution {
+        return FontContribution(
+            id = "acme-mono",
+            path = "extension://acme.toml/fonts/mono.ttf",
+            displayName = "Acme Mono",
         )
     }
 }

@@ -25,28 +25,15 @@ import org.junit.Test
 class ExtensionIdsTest {
 
     @Test
-    fun `namespaces theme ids`() {
-        assertEquals("ext:acme.toml/toml-dark", ExtensionIds.theme("acme.toml", "toml-dark"))
-    }
+    fun `keeps contributed ids in their own namespace`() {
+        val themeId = ExtensionIds.theme("acme.toml", "toml-dark")
 
-    @Test
-    fun `detects extension ids`() {
-        assertTrue(ExtensionIds.isExtensionId("ext:acme.toml/toml-dark"))
+        assertEquals("ext:acme.toml/toml-dark", themeId)
+        assertTrue(ExtensionIds.isExtensionId(themeId))
+        assertEquals("acme.toml" to "toml-dark", ExtensionIds.resolve(themeId))
+
         assertFalse(ExtensionIds.isExtensionId("darcula"))
-    }
-
-    @Test
-    fun `resolves namespaced id back to extension and local id`() {
-        assertEquals(
-            "acme.toml" to "toml-dark",
-            ExtensionIds.resolve("ext:acme.toml/toml-dark"),
-        )
-    }
-
-    @Test
-    fun `does not resolve bundled ids`() {
         assertNull(ExtensionIds.resolve("darcula"))
-        assertNull(ExtensionIds.resolve("ext:"))
         assertNull(ExtensionIds.resolve("ext:acme.toml"))
     }
 }

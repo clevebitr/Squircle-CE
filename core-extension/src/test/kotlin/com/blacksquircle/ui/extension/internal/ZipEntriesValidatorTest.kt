@@ -24,26 +24,16 @@ import org.junit.Test
 
 class ZipEntriesValidatorTest {
 
-    private val manifestEntry = Entry("extension.json", 1024, 512)
+    private val manifest = Entry("extension.json", 1024, 512)
 
     @Test
-    fun `accepts a well formed package`() {
+    fun `accepts the layout of a real archive`() {
         val entries = listOf(
-            manifestEntry,
-            Entry("syntaxes/toml.tmLanguage.json", 4096, 1024),
-            Entry("language-configuration/toml.json", 256, 128),
-            Entry("themes/dark.json", 2048, 512),
-        )
-
-        assertNull(ZipEntriesValidator.validate(entries))
-    }
-
-    @Test
-    fun `accepts directory entries as they appear in real archives`() {
-        val entries = listOf(
-            manifestEntry,
+            manifest,
             Entry("syntaxes/", 0, 0),
             Entry("syntaxes/diff.tmLanguage.json", 4096, 1024),
+            Entry("language-configuration/", 0, 0),
+            Entry("language-configuration/diff.json", 256, 128),
             Entry("LICENSES/", 0, 0),
             Entry("LICENSES/vscode-MIT.txt", 1024, 512),
             Entry("LICENSE", 512, 256),
@@ -54,78 +44,47 @@ class ZipEntriesValidatorTest {
     }
 
     @Test
-    fun `rejects unexpected root text file`() {
-        val entries = listOf(manifestEntry, Entry("NOTES.txt", 10, 10))
+    fun `rejects everything that is not a data file`() {
+        val rejected = listOf(
+            "../evil.json" to "traversal",
+            "syntaxes/../../evil.json" to "traversal below a directory",
+            "/etc/passwd" to "absolute path",
+            "themes\\a.json" to "windows separator",
+            "NOTES.txt" to "unknown root file",
+            "lib/tool.txt" to "unknown directory",
+            "fonts/tool.so" to "executable content",
+        )
 
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
+        for ((name, reason) in rejected) {
+            val failure = ZipEntriesValidator.validate(listOf(manifest, Entry(name, 10, 10)))
+            assertTrue(
+                "$reason must be rejected: $name",
+                failure is ExtensionFailure.InvalidPackage,
+            )
+        }
     }
 
     @Test
     fun `rejects package without manifest`() {
-        val entries = listOf(Entry("themes/dark.json", 1024, 512))
+        val failure = ZipEntriesValidator.validate(listOf(Entry("themes/dark.json", 10, 10)))
 
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
+        assertTrue(failure is ExtensionFailure.InvalidPackage)
     }
 
     @Test
-    fun `rejects traversal entry`() {
-        val entries = listOf(manifestEntry, Entry("../evil.json", 10, 10))
-
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
-    }
-
-    @Test
-    fun `rejects unexpected root file`() {
-        val entries = listOf(manifestEntry, Entry("readme.md", 10, 10))
-
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
-    }
-
-    @Test
-    fun `rejects unexpected directory`() {
-        val entries = listOf(manifestEntry, Entry("lib/tool.txt", 10, 10))
-
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
-    }
-
-    @Test
-    fun `rejects executable content inside allowed directory`() {
-        val entries = listOf(manifestEntry, Entry("fonts/tool.so", 10, 10))
-
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
-    }
-
-    @Test
-    fun `rejects oversized entry`() {
-        val entries = listOf(
-            manifestEntry,
-            Entry("themes/dark.json", ExtensionConstants.MAX_ENTRY_BYTES + 1, 1024),
-        )
-
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
-    }
-
-    @Test
-    fun `rejects suspicious compression ratio`() {
-        val entries = listOf(manifestEntry, Entry("themes/dark.json", 1024L * 1024, 1))
-
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
-    }
-
-    @Test
-    fun `rejects too many entries`() {
-        val entries = buildList {
-            add(manifestEntry)
+    fun `rejects packages that are too large or too many`() {
+        val oversized = listOf(manifest, Entry("themes/dark.json", ExtensionConstants.MAX_ENTRY_BYTES + 1, 1024))
+        val bomb = listOf(manifest, Entry("themes/dark.json", 1024L * 1024, 1))
+        val tooMany = buildList {
+            add(manifest)
             repeat(ExtensionConstants.MAX_ENTRY_COUNT) { index ->
                 add(Entry("themes/theme$index.json", 16, 8))
             }
         }
 
-        assertTrue(ZipEntriesValidator.validate(entries) is ExtensionFailure.InvalidPackage)
-    }
-
-    @Test
-    fun `rejects empty package`() {
+        assertTrue(ZipEntriesValidator.validate(oversized) is ExtensionFailure.InvalidPackage)
+        assertTrue(ZipEntriesValidator.validate(bomb) is ExtensionFailure.InvalidPackage)
+        assertTrue(ZipEntriesValidator.validate(tooMany) is ExtensionFailure.InvalidPackage)
         assertTrue(ZipEntriesValidator.validate(emptyList()) is ExtensionFailure.InvalidPackage)
     }
 }
