@@ -46,8 +46,19 @@ internal object PathSanitizer {
         return normalized.split(SEPARATOR).none { it == TRAVERSAL || it.isEmpty() }
     }
 
-    /** @param directory e.g. `syntaxes/`, matched against the [path]'s first segment. */
+    /**
+     * @param directory e.g. `syntaxes/`
+     *
+     * Accepts both the directory entry itself (`syntaxes`, as it appears in zip
+     * archives) and anything below it (`syntaxes/diff.tmLanguage.json`).
+     */
     fun isInside(path: String, directory: String): Boolean {
-        return path.startsWith(directory.removeSuffix(SEPARATOR.toString()) + SEPARATOR)
+        val normalizedPath = path.trimEnd(SEPARATOR)
+        val normalizedDirectory = directory.trimEnd(SEPARATOR)
+        if (normalizedPath.isEmpty() || normalizedDirectory.isEmpty()) {
+            return false
+        }
+        return normalizedPath == normalizedDirectory ||
+            normalizedPath.startsWith(normalizedDirectory + SEPARATOR)
     }
 }

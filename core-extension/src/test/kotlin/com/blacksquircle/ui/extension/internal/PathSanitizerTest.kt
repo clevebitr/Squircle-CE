@@ -23,42 +23,29 @@ import org.junit.Test
 class PathSanitizerTest {
 
     @Test
-    fun `accepts nested relative path`() {
+    fun `accepts paths below an allow listed directory`() {
         assertTrue(PathSanitizer.isSafeRelativePath("syntaxes/toml/toml.tmLanguage.json"))
-    }
-
-    @Test
-    fun `accepts directory entry with trailing separator`() {
         assertTrue(PathSanitizer.isSafeRelativePath("themes/"))
-    }
-
-    @Test
-    fun `rejects traversal segments`() {
-        assertFalse(PathSanitizer.isSafeRelativePath("../evil.json"))
-        assertFalse(PathSanitizer.isSafeRelativePath("themes/../../evil.json"))
-    }
-
-    @Test
-    fun `rejects absolute paths`() {
-        assertFalse(PathSanitizer.isSafeRelativePath("/etc/passwd"))
-    }
-
-    @Test
-    fun `rejects windows separators and drives`() {
-        assertFalse(PathSanitizer.isSafeRelativePath("themes\\a.json"))
-        assertFalse(PathSanitizer.isSafeRelativePath("c:/themes/a.json"))
-    }
-
-    @Test
-    fun `rejects empty segments`() {
-        assertFalse(PathSanitizer.isSafeRelativePath("themes//a.json"))
-        assertFalse(PathSanitizer.isSafeRelativePath(""))
-        assertFalse(PathSanitizer.isSafeRelativePath("/"))
-    }
-
-    @Test
-    fun `matches directory prefix by segment`() {
         assertTrue(PathSanitizer.isInside("themes/a.json", "themes/"))
+        assertTrue(PathSanitizer.isInside("syntaxes", "syntaxes/"))
+    }
+
+    @Test
+    fun `rejects paths that could escape the extension directory`() {
+        val unsafe = listOf(
+            "../evil.json",
+            "themes/../../evil.json",
+            "/etc/passwd",
+            "themes\\a.json",
+            "c:/themes/a.json",
+            "themes//a.json",
+            "",
+            "/",
+        )
+
+        for (path in unsafe) {
+            assertFalse("must be unsafe: '$path'", PathSanitizer.isSafeRelativePath(path))
+        }
         assertFalse(PathSanitizer.isInside("themes_evil/a.json", "themes/"))
     }
 }

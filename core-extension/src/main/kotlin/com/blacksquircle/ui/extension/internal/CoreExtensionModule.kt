@@ -23,6 +23,7 @@ import com.blacksquircle.ui.extension.AppVersionCodeProvider
 import com.blacksquircle.ui.extension.ExtensionInstaller
 import com.blacksquircle.ui.extension.ExtensionPaths
 import com.blacksquircle.ui.extension.ExtensionRegistry
+import com.blacksquircle.ui.extension.PackageVersionCodeProvider
 import dagger.Module
 import dagger.Provides
 import kotlinx.serialization.json.Json
