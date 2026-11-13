@@ -34,6 +34,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -45,6 +47,8 @@ internal class ExtensionRegistryImpl(
 ) : ExtensionRegistry {
 
     private val contributionsFlow = MutableStateFlow(ExtensionContributions())
+    private val refreshMutex = Mutex()
+    private var initialized = false
 
     override fun contributions(): ExtensionContributions {
         return contributionsFlow.value
@@ -64,7 +68,21 @@ internal class ExtensionRegistryImpl(
         }
     }
 
+    override suspend fun ensureLoaded(): ExtensionContributions {
+        return refreshMutex.withLock {
+            if (initialized) {
+                contributionsFlow.value
+            } else {
+                rebuild()
+            }
+        }
+    }
+
     override suspend fun refresh(): ExtensionContributions {
+        return refreshMutex.withLock { rebuild() }
+    }
+
+    private suspend fun rebuild(): ExtensionContributions {
         return withContext(dispatcherProvider.io()) {
             val entities = extensionDao.loadAll()
             removeOrphanDirectories(entities)
@@ -95,6 +113,7 @@ internal class ExtensionRegistryImpl(
                 failures = failures,
             )
             contributionsFlow.value = contributions
+            initialized = true
             Timber.d(
                 "Extension contributions rebuilt: " +
                     "${languages.size} languages, ${themes.size} themes, ${fonts.size} fonts, " +

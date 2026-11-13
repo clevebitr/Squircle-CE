@@ -53,7 +53,7 @@ internal class LanguageInteractorImpl(
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun loadGrammars(): List<GrammarModel> {
         return withContext(dispatcherProvider.io()) {
-            val contributed = extensionRegistry.contributions().languages
+            val contributed = extensionRegistry.ensureLoaded().languages
             val scopeNames = contributed.map(ContributedLanguage::scopeName)
             if (merged.isNotEmpty() && scopeNames == contributedScopeNames) {
                 return@withContext merged
@@ -75,6 +75,7 @@ internal class LanguageInteractorImpl(
     }
 
     override suspend fun registerGrammar(language: String) {
+        loadGrammars()
         withContext(dispatcherProvider.io()) {
             val grammar = merged.find { it.scopeName == language }
             if (grammar == null) {

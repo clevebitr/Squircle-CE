@@ -24,6 +24,7 @@ import com.blacksquircle.ui.feature.editor.data.interactor.LanguageInteractorImp
 import com.blacksquircle.ui.feature.editor.domain.interactor.LanguageInteractor
 import com.blacksquircle.ui.test.provider.TestDispatcherProvider
 import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -45,6 +46,7 @@ class LanguageInteractorImplTest {
     private val context = mockk<Context>(relaxed = true)
     private val extensionRegistry = mockk<ExtensionRegistry> {
         every { contributions() } returns ExtensionContributions()
+        coEvery { ensureLoaded() } returns ExtensionContributions()
     }
 
     private lateinit var languageInteractor: LanguageInteractor

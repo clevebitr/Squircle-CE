@@ -38,6 +38,12 @@ interface ExtensionRegistry {
     suspend fun installed(): List<InstalledExtension>
 
     /**
+     * Same as [refresh], but only rebuilds the snapshot on the first call or after
+     * an install/uninstall. Consumers call this before trusting [contributions].
+     */
+    suspend fun ensureLoaded(): ExtensionContributions
+
+    /**
      * Rebuilds the snapshot from the database and the extensions directory.
      * Also removes directories that no longer have a database record.
      */
